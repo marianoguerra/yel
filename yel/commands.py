@@ -5,6 +5,8 @@ import sys
 import json
 import random
 
+import pystache
+
 import util
 
 from command import Command, Result
@@ -814,6 +816,49 @@ class Not(DefaultIterator):
             return item[0]
         else:
             return item
+
+class Render(MultiTypeCommand):
+    '''base command that modifies arguments dependent on type'''
+
+    SHORT = "render"
+    LONG = "render-template"
+
+    EXPAND_SHORT_OPTIONS = {
+        "t": "template"
+    }
+
+    def process_list(self, items):
+        '''do the process on items'''
+        raise ValueError("template parameter required")
+
+    def process_object(self, items):
+        '''do the process on object'''
+
+        template = util.listify(self.args.get("template", None))
+
+        if len(template) > 0 and template[0] is None:
+            raise ValueError("template parameter required")
+        elif len(template) == 1 and isinstance(template[0], basestring):
+            template = template[0]
+        else:
+            raise ValueError("template parameter should be a string, got:" +
+                    str(template))
+
+        # if just the template parameter is defined get the rest from defaults
+        # or stdin
+        if len(self.args) == 1:
+            ctx = self.get_default_args()
+        else:
+            ctx = self.args
+
+        if not isinstance(ctx, dict):
+            ctx = dict(value=ctx)
+
+        return pystache.render(template, ctx)
+
+    def process_single(self, item):
+        '''do the process on single value'''
+        raise ValueError("template parameter required")
 
 def load_commands():
     '''load available commands'''
