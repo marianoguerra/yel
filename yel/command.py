@@ -227,3 +227,7 @@ class Command(JsonSerializable):
 
         return result
 
+    def get_arg_type(self, key, type_, default=None, name=None):
+        '''try to get self.args[key], check if it's type *type_* if not raise
+        ValueError if not found return default'''
+        return util.expect_arg_type(self.args, key, type_, default, name)
