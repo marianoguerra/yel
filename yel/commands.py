@@ -432,21 +432,6 @@ class Filter(Command):
     SHORT = "filter"
     LONG = "filter"
 
-    FILTERS = {
-        "integer": lambda x: isinstance(x, int) and not isinstance(x, bool),
-        "decimal": lambda x: isinstance(x, float),
-        "number": lambda x: (isinstance(x, float) or
-            isinstance(x, int) and not
-            isinstance(x, bool)),
-        "string": lambda x: isinstance(x, basestring),
-        "boolean": lambda x: isinstance(x, bool),
-        "none": lambda x: x is None,
-        "list": lambda x: isinstance(x, list),
-        "object": lambda x: isinstance(x, dict),
-        # javascript falsy values
-        "falsy": lambda x: x == False or x == 0 or x == 0.0 or x == None
-    }
-
     EXPAND_SHORT_OPTIONS = {
         "t": "type"
     }
@@ -471,10 +456,10 @@ class Filter(Command):
             checks = []
 
             for name in filter_names:
-                if name not in self.FILTERS:
+                if name not in util.TYPE_CHECKS:
                     return Result.bad_request("filter not found: " + str(name))
                 else:
-                    filter_fun = self.FILTERS[name]
+                    filter_fun = util.TYPE_CHECKS[name]
                     checks.append(self.modifier(filter_fun))
 
             result = []

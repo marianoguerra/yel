@@ -1,5 +1,21 @@
 '''utility functions for commands'''
 
+TYPE_CHECKS = {
+    "integer": lambda x: isinstance(x, int) and not isinstance(x, bool),
+    "decimal": lambda x: isinstance(x, float),
+    "number": lambda x: (isinstance(x, float) or
+        isinstance(x, int) and not
+        isinstance(x, bool)),
+    "string": lambda x: isinstance(x, basestring),
+    "boolean": lambda x: isinstance(x, bool),
+    "none": lambda x: x is None,
+    "list": lambda x: isinstance(x, list),
+    "object": lambda x: isinstance(x, dict),
+    # javascript falsy values
+    "falsy": lambda x: x == False or x == 0 or x == 0.0 or x == None,
+    "truthy": lambda x: not (x == False or x == 0 or x == 0.0 or x == None)
+}
+
 def listify(item):
     '''return the item as a list'''
     if isinstance(item, list):
