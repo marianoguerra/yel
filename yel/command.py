@@ -212,7 +212,11 @@ class Command(JsonSerializable):
                     not val in ("true", "false", "null")):
                 value = val
             else:
-                value = json.loads(val)
+                try:
+                    value = json.loads(val)
+                except ValueError:
+                    # TODO: provide a flag to fail in this case?
+                    value = val
 
             if isinstance(arg, list):
                 for long_option in arg:
