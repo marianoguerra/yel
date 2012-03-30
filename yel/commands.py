@@ -460,6 +460,268 @@ class Keep(Filter):
         self.modifier = lambda f: lambda x: f(x)
         self.multichecker = any
 
+class StrCommand(MultiTypeCommand):
+    '''base command for commands that operate on strings'''
+
+    OP = "defineme"
+
+    EXPAND_ARGS = True
+
+    EXPAND_SHORT_OPTIONS = {
+        "a": "args"
+    }
+
+    ARG_PROCESS = None
+
+    def __init__(self, args, vars_):
+        Command.__init__(self, self.SHORT, args, vars_)
+        self.ignore_other_types = True
+
+    def process_list(self, items, args=None):
+        '''do the process on items'''
+
+        if args is None:
+            args = []
+
+        process = self.ARG_PROCESS
+
+        if callable(process):
+            args = [process(arg) for arg in args]
+
+        result = []
+        for item in items:
+            if isinstance(item, basestring):
+                if self.EXPAND_ARGS:
+                    result.append(getattr(item, self.OP)(*args))
+                else:
+                    result.append(getattr(item, self.OP)(args))
+            else:
+                result.append(item)
+
+        return result
+
+    def process_object(self, items):
+        '''do the process on items'''
+
+        defs = self.get_default_args()
+        if isinstance(defs, dict):
+            raise ValueError("expected list or single item, got: %s" %
+                    str(defs))
+
+        single = False
+        if not isinstance(defs, list):
+            single = True
+            defs = [defs]
+
+        args = util.listify(self.args.get("args", []))
+
+        result = self.process_list(defs, args)
+
+        if single:
+            return result[0]
+        else:
+            return result
+
+    def process_single(self, item, args=None):
+        '''do the process on single value'''
+        return self.process_list([item], args)[0]
+
+class StrUpper(StrCommand):
+    '''make string uppercase'''
+
+    SHORT = "s.upper"
+    LONG  = "s.uppercase"
+
+    OP = "upper"
+
+class StrLower(StrCommand):
+    '''make string lowecase'''
+
+    SHORT = "s.lower"
+    LONG  = "s.lowercase"
+
+    OP = "lower"
+
+class StrTitle(StrCommand):
+    '''make string title'''
+
+    SHORT = "s.title"
+    LONG  = "s.title"
+
+    OP = "title"
+
+class StrStartsWith(StrCommand):
+    '''check if string starts with other string'''
+
+    SHORT = "s.startswith"
+    LONG  = "s.startswith"
+
+    OP = "startswith"
+
+class StrEndsWith(StrCommand):
+    '''check if string ends with other string'''
+
+    SHORT = "s.endswith"
+    LONG  = "s.endswith"
+
+    OP = "endswith"
+
+class StrContains(StrCommand):
+    '''check if string contains other string'''
+
+    SHORT = "s.contains"
+    LONG  = "s.contains"
+
+    OP = "__contains__"
+
+class StrFind(StrCommand):
+    '''find needle in string'''
+
+    SHORT = "s.find"
+    LONG  = "s.find"
+
+    OP = "find"
+
+class StrIsAlnum(StrCommand):
+    '''check if string is alnum'''
+
+    SHORT = "s.is.alnum"
+    LONG  = "s.is.alnum"
+
+    OP = "isalnum"
+
+class StrIsAlpha(StrCommand):
+    '''check if string is alpha'''
+
+    SHORT = "s.is.alpha"
+    LONG  = "s.is.alpha"
+
+    OP = "isalpha"
+
+class StrIsDigit(StrCommand):
+    '''check if string is digit'''
+
+    SHORT = "s.is.digit"
+    LONG  = "s.is.digit"
+
+    OP = "isdigit"
+
+class StrIsLower(StrCommand):
+    '''check if string is lower'''
+
+    SHORT = "s.is.lower"
+    LONG  = "s.is.lower"
+
+    OP = "islower"
+
+class StrIsSpace(StrCommand):
+    '''check if string is space'''
+
+    SHORT = "s.is.space"
+    LONG  = "s.is.space"
+
+    OP = "isspace"
+
+class StrIsTitle(StrCommand):
+    '''check if string is title'''
+
+    SHORT = "s.is.title"
+    LONG  = "s.is.title"
+
+    OP = "istitle"
+
+class StrIsUpper(StrCommand):
+    '''check if string is upper'''
+
+    SHORT = "s.is.upper"
+    LONG  = "s.is.upper"
+
+    OP = "isupper"
+
+class StrJoin(StrCommand):
+    '''join an iterable with a string'''
+
+    SHORT = "s.join"
+    LONG  = "s.join"
+
+    OP = "join"
+
+    EXPAND_ARGS = False
+    # TODO: make True, False and None true, false, null
+    ARG_PROCESS = str
+
+class StrReplace(StrCommand):
+    '''replace a substring with other substring'''
+
+    SHORT = "s.replace"
+    LONG  = "s.replace"
+
+    OP = "replace"
+
+class StrLeftTrim(StrCommand):
+    '''apply left strip to a string'''
+
+    SHORT = "s.lstrip"
+    LONG  = "s.left.strip"
+
+    OP = "lstrip"
+
+class StrLeftJustify(StrCommand):
+    '''apply left justify to a string'''
+
+    SHORT = "s.ljustify"
+    LONG  = "s.left.justify"
+
+    OP = "ljustify"
+
+class StrLeftFind(StrCommand):
+    '''apply left find to a string'''
+
+    SHORT = "s.lfind"
+    LONG  = "s.left.find"
+
+    OP = "lfind"
+
+class StrRightTrim(StrCommand):
+    '''apply right strip to a string'''
+
+    SHORT = "s.rstrip"
+    LONG  = "s.right.strip"
+
+    OP = "rstrip"
+
+class StrRightJustify(StrCommand):
+    '''apply right justify to a string'''
+
+    SHORT = "s.rjustify"
+    LONG  = "s.right.justify"
+
+    OP = "rjustify"
+
+class StrRightFind(StrCommand):
+    '''apply right find to a string'''
+
+    SHORT = "s.rfind"
+    LONG  = "s.right.find"
+
+    OP = "rfind"
+
+class StrSplit(StrCommand):
+    '''split a string at a separator'''
+
+    SHORT = "s.split"
+    LONG  = "s.split"
+
+    OP = "split"
+
+class StrStrip(StrCommand):
+    '''strip a string'''
+
+    SHORT = "s.strip"
+    LONG  = "s.strip"
+
+    OP = "strip"
+
 def load_commands():
     '''load available commands'''
     for attr in globals().values():

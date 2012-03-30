@@ -5,6 +5,8 @@ import json
 
 import util
 
+DEBUG = os.environ.get("YEL_DEBUG", False)
+
 class JsonSerializable(object):
     '''class that can be serialized to/from json'''
 
@@ -128,11 +130,13 @@ class Command(JsonSerializable):
 
         instance = cls(args, vars_)
 
-        #try:
-        if True:
+        try:
             return instance.run()
-        #except Exception as ex:
-        #    return Result.from_exception(ex)
+        except Exception as ex:
+            if DEBUG:
+                raise
+            else:
+                return Result.from_exception(ex)
 
     def get_args(self):
         '''get args if there are some otherwise get them from stdin
