@@ -6,6 +6,7 @@ import json
 import util
 
 DEBUG = os.environ.get("YEL_DEBUG", False)
+STRICT_MODE = os.environ.get("YEL_STRICT", False)
 
 class JsonSerializable(object):
     '''class that can be serialized to/from json'''
@@ -103,7 +104,7 @@ class Command(JsonSerializable):
         '''run the command and return result'''
         return Result("")
 
-    def get(self, name, default=None, fail_on_invalid_json=False):
+    def get(self, name, default=None):
         '''return var name from vars if set, otherwise return default'''
         var = self.vars.get(name, default)
 
@@ -113,7 +114,7 @@ class Command(JsonSerializable):
         try:
             return json.loads(var)
         except ValueError:
-            if fail_on_invalid_json:
+            if STRICT_MODE:
                 raise
             else:
                 return var
@@ -215,8 +216,10 @@ class Command(JsonSerializable):
                 try:
                     value = json.loads(val)
                 except ValueError:
-                    # TODO: provide a flag to fail in this case?
-                    value = val
+                    if STRICT_MODE:
+                        raise
+                    else:
+                        value = val
 
             if isinstance(arg, list):
                 for long_option in arg:
