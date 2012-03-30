@@ -133,7 +133,7 @@ class Join(MultiTypeCommand):
 
     def process_object(self, items):
         '''do the process on object'''
-        defs, single = self.get_default_args_list(True, True)
+        defs, single = self.get_args_list(True, True)
 
         sep = str(self.args.get("separator", " "))
 
@@ -399,7 +399,7 @@ class Slice(MultiTypeCommand):
     def process_object(self, items):
         '''do the process on items'''
 
-        defs = self.get_default_args_list(True)
+        defs = self.get_args_list(True)
 
         arg_from = self.get_arg_type("from", int, None)
         arg_to   = self.get_arg_type("to", int, None)
@@ -433,7 +433,7 @@ class Item(MultiTypeCommand):
     def process_object(self, items):
         '''do the process on items'''
 
-        defs = self.get_default_args_list(True)
+        defs = self.get_args_list(True)
         index = self.args.get("item", 0)
 
         if len(defs) > 0:
@@ -536,7 +536,7 @@ class StrCommand(MultiTypeCommand):
     def process_object(self, items):
         '''do the process on items'''
 
-        defs, single = self.get_default_args_list(True, True)
+        defs, single = self.get_args_list(True, True)
 
         args = util.listify(self.args.get("args", []))
 
@@ -768,7 +768,7 @@ class DefaultIterator(MultiTypeCommand):
 
     def process_object(self, items):
         '''do the process on object'''
-        defs, single = self.get_default_args_list(True, True)
+        defs, single = self.get_args_list(True, True)
         result = self.process_list(defs)
 
         return self.process_possible_single(result, single)
