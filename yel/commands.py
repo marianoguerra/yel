@@ -314,6 +314,20 @@ class Reverse(MultiTypeCommand):
         items.reverse()
         return items
 
+class Sort(MultiTypeCommand):
+    '''command to sort the received arguments if they are a list
+    leave them untouched otherwise'''
+    SHORT = "sort"
+    LONG = "sort"
+
+    def __init__(self, args, vars_):
+        MultiTypeCommand.__init__(self, args, vars_)
+
+    def process_list(self, items):
+        '''do the process on items'''
+        items.sort()
+        return items
+
 class Shuffle(MultiTypeCommand):
     '''command to shuffle the content of the arguments if is a list'''
     SHORT = "shuffle"
