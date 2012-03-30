@@ -166,26 +166,26 @@ class Range(MultiTypeCommand):
     def process_list(self, items):
         '''do the process on items'''
         frm  = 0
-        to   = 1
+        to_   = 1
         step = 1
 
         if not all(isinstance(item, int) for item in items):
             raise ValueError("expected 1, 2 or 3 integers, got: " + str(items))
 
         if len(items) == 1:
-            to = items[0]
+            to_ = items[0]
         elif len(items) == 2:
-            frm, to = items
+            frm, to_ = items
         elif len(items) == 3:
-            frm, to, step = items
+            frm, to_, step = items
 
             if step < 0:
-                frm, to = to, frm
+                frm, to_ = to_, frm
 
         else:
             raise ValueError("expected 1, 2 or 3 integers, got: " + str(items))
 
-        return list(range(frm, to, step))
+        return list(range(frm, to_, step))
 
     def process_object(self, items):
         '''do the process on object'''
