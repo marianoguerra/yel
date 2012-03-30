@@ -111,6 +111,53 @@ class Size(MultiTypeCommand):
         '''do the process on single value'''
         return 1
 
+class Range(MultiTypeCommand):
+    '''return a range of numbers from the arguments'''
+
+    SHORT = "range"
+    LONG = "range"
+
+    EXPAND_SHORT_OPTIONS = {
+        "f": "from",
+        "t": "to",
+        "s": "step"
+    }
+
+    def __init__(self, args, vars_):
+        MultiTypeCommand.__init__(self, args, vars_)
+
+    def process_list(self, items):
+        '''do the process on items'''
+        frm  = 0
+        to   = 1
+        step = 1
+
+        if not all(isinstance(item, int) for item in items):
+            raise ValueError("expected 1, 2 or 3 integers, got: " + str(items))
+
+        if len(items) == 1:
+            to = items[0]
+        elif len(items) == 2:
+            frm, to = items
+        elif len(items) == 3:
+            frm, to, step = items
+
+            if step < 0:
+                frm, to = to, frm
+
+        else:
+            raise ValueError("expected 1, 2 or 3 integers, got: " + str(items))
+
+        return list(range(frm, to, step))
+
+    def process_object(self, items):
+        '''do the process on object'''
+        return len(items)
+
+    def process_single(self, item):
+        '''do the process on single value'''
+        return self.process_list([item])
+
 class Keys(MultiTypeCommand):
     '''return the keys of the arguments'''
 
@@ -281,14 +328,13 @@ class Set(MultiTypeCommand):
 
     def process_list(self, items):
         '''do the process on items'''
-        # TODO: define how to handle list with different types
         return list(set(items))
 
-class Item(MultiTypeCommand):
+class Slice(MultiTypeCommand):
     '''command to get a sublist from arguments if is a list'''
 
-    SHORT = "item"
-    LONG = "item"
+    SHORT = "slice"
+    LONG = "slice"
 
     EXPAND_SHORT_OPTIONS = {
         "f": "from",
@@ -299,15 +345,53 @@ class Item(MultiTypeCommand):
     def __init__(self, args, vars_):
         MultiTypeCommand.__init__(self, args, vars_)
 
-    def process_list(self, items):
+    def process_object(self, items):
         '''do the process on items'''
 
-        # TODO: check if more than one arg for each and raise error
-        arg_from = self.args.get("from", [0])[0]
-        arg_to   = self.args.get("to", [arg_from + 1])[0]
-        arg_step = self.args.get("step", [1])[0]
+        defs = self.get_default_args()
 
-        return items[arg_from:arg_to:arg_step]
+        util.expect_list(defs)
+
+        arg_from = self.get_arg_type("from", int, None)
+        arg_to   = self.get_arg_type("to", int, None)
+        arg_step = self.get_arg_type("step", int, None)
+
+        if arg_step is not None and arg_step < 0:
+            arg_from, arg_to = arg_to, arg_from
+
+        return defs[arg_from:arg_to:arg_step]
+
+class Item(MultiTypeCommand):
+    '''command to get a sublist from arguments if is a list'''
+
+    SHORT = "item"
+    LONG = "item"
+
+    EXPAND_SHORT_OPTIONS = {
+        "i": "item"
+    }
+
+    def __init__(self, args, vars_):
+        MultiTypeCommand.__init__(self, args, vars_)
+
+    def process_list(self, items):
+        '''do the process on items'''
+        if len(items) > 0:
+            return items[0]
+        else:
+            return items
+
+    def process_object(self, items):
+        '''do the process on items'''
+
+        defs = self.get_default_args()
+        util.expect_list(defs)
+        index = self.args.get("item", 0)
+
+        if len(defs) > 0:
+            return defs[index]
+        else:
+            return defs
 
 class Filter(Command):
     '''command to filter items in a list if satisfy a predicate'''
