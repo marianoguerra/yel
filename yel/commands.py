@@ -348,9 +348,7 @@ class Slice(MultiTypeCommand):
     def process_object(self, items):
         '''do the process on items'''
 
-        defs = self.get_default_args()
-
-        util.expect_list(defs)
+        defs = self.get_default_args_list(True)
 
         arg_from = self.get_arg_type("from", int, None)
         arg_to   = self.get_arg_type("to", int, None)
@@ -384,8 +382,7 @@ class Item(MultiTypeCommand):
     def process_object(self, items):
         '''do the process on items'''
 
-        defs = self.get_default_args()
-        util.expect_list(defs)
+        defs = self.get_default_args_list(True)
         index = self.args.get("item", 0)
 
         if len(defs) > 0:
@@ -503,15 +500,7 @@ class StrCommand(MultiTypeCommand):
     def process_object(self, items):
         '''do the process on items'''
 
-        defs = self.get_default_args()
-        if isinstance(defs, dict):
-            raise ValueError("expected list or single item, got: %s" %
-                    str(defs))
-
-        single = False
-        if not isinstance(defs, list):
-            single = True
-            defs = [defs]
+        defs, single = self.get_default_args_list(True, True)
 
         args = util.listify(self.args.get("args", []))
 

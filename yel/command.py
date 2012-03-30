@@ -159,6 +159,42 @@ class Command(JsonSerializable):
         else:
             return json.load(sys.stdin)
 
+    def get_default_args_list(self, listify_item=False,
+            return_single_flag=False):
+        '''get the default arguments from vars if set if not get them from
+        stdin
+
+        if listify_item is True return a single item as a list
+
+        if return_single_flag is True return a two item tuple with the second
+        item being a flag signaling if args was originally a single item'''
+
+        if self.defs is not None:
+            defs = self.defs
+        else:
+            defs = json.load(sys.stdin)
+
+        if listify_item:
+            msg = "expected list or single item, got: %s"
+        else:
+            msg = "expected list, got: %s"
+
+
+        single = False
+
+        if isinstance(defs, dict):
+            raise ValueError(msg % str(defs))
+        elif not isinstance(defs, list):
+            single = True
+            defs = [defs]
+
+        if return_single_flag:
+            result = defs, single
+        else:
+            result = defs
+
+        return result
+
     @classmethod
     def parse_args(cls, args):
         '''parse command line args and return a dict object with the options'''
