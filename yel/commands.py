@@ -845,6 +845,56 @@ class Render(MultiTypeCommand):
         '''do the process on single value'''
         raise ValueError("template parameter required")
 
+class Is(MultiTypeCommand):
+    '''return true if argument is of the expected type'''
+
+    SHORT = "is"
+    LONG = "is"
+
+    EXPAND_SHORT_OPTIONS = {
+        "t": "type"
+    }
+
+    def process_list(self, items):
+        '''do the process on items'''
+        raise ValueError("type parameter required")
+
+    def process_object(self, items):
+        '''do the process on object'''
+        type_name = self.args.get("type", None)
+
+        if type_name is None:
+            raise ValueError("type parameter required")
+        else:
+            defs = self.get_default_args()
+            type_name = util.listify(type_name)
+
+            if len(type_name) == 1:
+                name = str(type_name[0])
+
+                if name in util.TYPE_CHECKS:
+                    return util.TYPE_CHECKS[name](defs)
+                else:
+                    raise ValueError("unknown type " + name)
+            elif (len(type_name) == 3 and
+                    type_name[0] == "list" and
+                    type_name[1] == "of"):
+
+                if isinstance(defs, list):
+                    name = type_name[2]
+
+                    if name in util.TYPE_CHECKS:
+                        check = util.TYPE_CHECKS[name]
+                        return all(check(item) for item in defs)
+                    else:
+                        raise ValueError("unknown type " + name)
+                else:
+                    return False
+
+    def process_single(self, item):
+        '''do the process on single value'''
+        raise ValueError("type parameter required")
+
 def load_commands():
     '''load available commands'''
     for attr in globals().values():
