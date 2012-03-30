@@ -746,6 +746,75 @@ class StrStrip(StrCommand):
 
     OP = "strip"
 
+class DefaultIterator(MultiTypeCommand):
+    '''base class for commands that iterate over default args'''
+
+    def __init__(self, args, vars_):
+        MultiTypeCommand.__init__(self, args, vars_)
+
+    def process_possible_single(self, item, is_single=True):
+        '''do some processing if the item is single'''
+        return item
+
+    def operator(self, items):
+        '''operate on items'''
+        return items
+
+    def process_list(self, items):
+        '''do the process on items'''
+
+        return self.operator(items)
+
+    def process_object(self, items):
+        '''do the process on object'''
+        defs, single = self.get_default_args_list(True, True)
+        result = self.process_list(defs)
+
+        return self.process_possible_single(result, single)
+
+    def process_single(self, item):
+        '''do the process on single value'''
+        result = self.process_list([item])
+        return self.process_possible_single(result)
+
+class All(DefaultIterator):
+    '''return true if all items are truthy'''
+
+    SHORT = "all"
+    LONG = "all"
+
+    def operator(self, items):
+        '''operate on items'''
+        return all(items)
+
+
+class Any(DefaultIterator):
+    '''return true if any items is truthy'''
+
+    SHORT = "any"
+    LONG = "any"
+
+    def operator(self, items):
+        '''operate on items'''
+        return any(items)
+
+class Not(DefaultIterator):
+    '''return true if all items are truthy'''
+
+    def operator(self, items):
+        '''operate on items'''
+        return [not bool(item) for item in items]
+
+    SHORT = "not"
+    LONG = "not"
+
+    def process_possible_single(self, item, is_single=True):
+        '''do some processing if the item is single'''
+        if is_single:
+            return item[0]
+        else:
+            return item
+
 def load_commands():
     '''load available commands'''
     for attr in globals().values():
