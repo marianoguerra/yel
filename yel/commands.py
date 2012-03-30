@@ -909,6 +909,39 @@ class Is(MultiTypeCommand):
         '''do the process on single value'''
         raise ValueError("type parameter required")
 
+class Append(MultiTypeCommand):
+    '''append items to another list'''
+
+    SHORT = "append"
+    LOND  = "append"
+
+    EXPAND_SHORT_OPTIONS = {
+        "i": "items"
+    }
+
+    def process_list(self, items):
+        '''do the process on items'''
+        to_append = self.get_args_list(True, False, False)
+        items.extend(to_append)
+        return items
+
+    def process_object(self, items):
+        '''do the process on object'''
+
+        current = self.get_args_list(True)
+
+        to_append = items.get("items", None)
+
+        if to_append is None:
+            raise ValueError("items parameter required")
+
+        current.extend(util.listify(to_append))
+        return current
+
+    def process_single(self, item):
+        '''do the process on single value'''
+        return self.process_list([item])
+
 def load_commands():
     '''load available commands'''
     for attr in globals().values():
