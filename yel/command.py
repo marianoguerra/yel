@@ -3,6 +3,8 @@ import os
 import sys
 import json
 
+import util
+
 class JsonSerializable(object):
     '''class that can be serialized to/from json'''
 
@@ -90,6 +92,11 @@ class Command(JsonSerializable):
         self.args = args
         self.vars = vars_
 
+        self.defs = self.args.get(Command.DEFS, None)
+
+        if Command.DEFS in self.args:
+            del self.args[Command.DEFS]
+
     def run(self):
         '''run the command and return result'''
         return Result("")
@@ -132,8 +139,8 @@ class Command(JsonSerializable):
 
         if the only args are default args return them as a list'''
 
-        if Command.DEFS in self.args and len(self.args) == 1:
-            return self.args[Command.DEFS]
+        if self.defs is not None and len(self.args) == 0:
+            return self.defs
         elif len(self.args):
             return self.args
         else:
@@ -143,8 +150,8 @@ class Command(JsonSerializable):
         '''get the default arguments from vars if set if not get them from
         stdin'''
 
-        if Command.DEFS in self.args:
-            return self.args[Command.DEFS]
+        if self.defs is not None:
+            return self.defs
         else:
             return json.load(sys.stdin)
 
