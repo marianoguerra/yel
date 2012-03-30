@@ -111,6 +111,41 @@ class Size(MultiTypeCommand):
         '''do the process on single value'''
         return 1
 
+class Join(MultiTypeCommand):
+    '''join arguments with separator arguments'''
+
+    SHORT = "join"
+    LONG = "join"
+
+    EXPAND_SHORT_OPTIONS = {
+        "s": "separator"
+    }
+
+    def __init__(self, args, vars_):
+        MultiTypeCommand.__init__(self, args, vars_)
+
+    def process_list(self, items, sep=" "):
+        '''do the process on items'''
+
+        return sep.join(str(item) for item in items)
+
+    def process_object(self, items):
+        '''do the process on object'''
+        defs, single = self.get_default_args_list(True, True)
+
+        sep = str(self.args.get("separator", " "))
+
+        result = self.process_list(defs, sep)
+
+        if single:
+            return result[0]
+        else:
+            return result
+
+    def process_single(self, item):
+        '''do the process on single value'''
+        return str(item)
+
 class Range(MultiTypeCommand):
     '''return a range of numbers from the arguments'''
 
